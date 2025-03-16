@@ -6,19 +6,19 @@
  */
 
 // Default color format
-const DEFAULT_COLOR_FORMAT = 'hex';
+const DEFAULT_COLOR_FORMAT = "hex";
 
 // Initialize context menu and storage
 chrome.runtime.onInstalled.addListener(() => {
   // Create context menu item
   chrome.contextMenus.create({
-    id: 'color-picker',
-    title: 'Pick Color',
-    contexts: ['page']
+    id: "color-picker",
+    title: "Pick Color",
+    contexts: ["page"],
   });
 
   // Initialize storage with default values
-  chrome.storage.sync.get('colorFormat', (result) => {
+  chrome.storage.sync.get("colorFormat", (result) => {
     if (!result.colorFormat) {
       chrome.storage.sync.set({ colorFormat: DEFAULT_COLOR_FORMAT });
     }
@@ -27,15 +27,32 @@ chrome.runtime.onInstalled.addListener(() => {
 
 // Handle context menu clicks
 chrome.contextMenus.onClicked.addListener((info, tab) => {
-  if (info.menuItemId === 'color-picker' && tab?.id) {
-    chrome.tabs.sendMessage(tab.id, { action: 'activate-picker' });
+  if (info.menuItemId === "color-picker" && tab?.id) {
+    chrome.tabs.sendMessage(tab.id, { action: "activate-picker" })
+      .catch((error) => {
+        console.log("Failed to send message to content script:", error);
+
+        if (!tab.id) {
+          console.log("Tab ID is missing");
+          return;
+        }
+
+        // Optional: Inject content script if it's not loaded
+        chrome.scripting.executeScript({
+          target: { tabId: tab.id },
+          files: ["content.js"],
+        }).then(() => {
+          // Retry sending message after content script is loaded
+          chrome.tabs.sendMessage(tab.id!, { action: "activate-picker" });
+        });
+      });
   }
 });
 
 // Handle messages from content script or options page
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.action === 'get-color-format') {
-    chrome.storage.sync.get('colorFormat', (result) => {
+  if (message.action === "get-color-format") {
+    chrome.storage.sync.get("colorFormat", (result) => {
       sendResponse({ colorFormat: result.colorFormat || DEFAULT_COLOR_FORMAT });
     });
     return true; // Required for async sendResponse
@@ -45,6 +62,23 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 // Legacy action click handler
 chrome.action.onClicked.addListener((tab) => {
   if (tab.id) {
-    chrome.tabs.sendMessage(tab.id, { action: 'activate-picker' });
+    chrome.tabs.sendMessage(tab.id, { action: "activate-picker" })
+      .catch((error) => {
+        console.log("Failed to send message to content script:", error);
+
+        if (!tab.id) {
+          console.log("Tab ID is missing");
+          return;
+        }
+
+        // Optional: Inject content script if it's not loaded
+        chrome.scripting.executeScript({
+          target: { tabId: tab.id },
+          files: ["content.js"],
+        }).then(() => {
+          // Retry sending message after content script is loaded
+          chrome.tabs.sendMessage(tab.id!, { action: "activate-picker" });
+        });
+      });
   }
 });

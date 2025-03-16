@@ -29,7 +29,11 @@
   "permissions": [
     "contextMenus",
     "clipboardWrite",
-    "storage"
+    "storage",
+    "scripting"
+  ],
+  "host_permissions": [
+    "<all_urls>"
   ],
   "incognito": "spanning"
 }
