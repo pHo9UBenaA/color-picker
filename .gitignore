@@ -175,3 +175,7 @@ dist
 .DS_Store
 
 *.zip
+
+.clinerules
+.roomodes
+.keep-prompts.md
