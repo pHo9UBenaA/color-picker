@@ -27,10 +27,9 @@
     "_execute_action": {}
   },
   "permissions": [
-    "contextMenus",
-    "clipboardWrite",
     "storage",
-    "scripting"
+    "scripting",
+    "clipboardWrite"
   ],
   "host_permissions": [
     "<all_urls>"
